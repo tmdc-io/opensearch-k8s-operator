@@ -57,3 +57,23 @@ ecr-login:
 ecr-logout:
 	@echo "=== logout of registry ==="
 	helm3.16.4 registry logout $(ECR_HOST)
+
+## TMDC
+IMAGE_REPO ?= docker.io/tmdcio/opensearch-operator
+PLATFORM ?= linux/amd64
+GITHUB_TAGS ?= latest
+
+.PHONY: build-tmdc-docker
+build-tmdc-docker: ## Build TMDC Docker image for linux/amd64
+	@echo "build docker container"
+	@cp -f LICENSE opensearch-operator/LICENSE
+	docker buildx build \
+		--output type=docker \
+		--platform $(PLATFORM) \
+		-f opensearch-operator/Dockerfile \
+		--tag $(IMAGE_REPO):$(GITHUB_TAGS) \
+		opensearch-operator
+
+.PHONY: push-tmdc-docker
+push-tmdc-docker: ## Push TMDC Docker image to Docker Hub
+	docker push $(IMAGE_REPO):$(GITHUB_TAGS)

@@ -7,4 +7,4 @@ sources:
   - https://github.com/opensearch-project/opensearch-k8s-operator
 type: application
 version: 3.0.3
-appVersion: 3.0.0-alpha
+appVersion: 3.0.0

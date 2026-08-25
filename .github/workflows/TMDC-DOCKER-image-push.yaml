@@ -1,0 +1,38 @@
+name: TMDC Docker Image CI workflow
+
+on:
+  push:
+    tags:
+      - 'docker-*'
+
+jobs:
+  # For RELEASE STEPS
+
+  dev-release:
+    name: Release Build and Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the repo
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3.6.1
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+    - name: Extract image tag
+      id: version
+      run: echo "VERSION=${GITHUB_REF_NAME#docker-}" >> "$GITHUB_OUTPUT"
+
+    - name: build docker
+      run: make build-tmdc-docker GITHUB_TAGS=${{ steps.version.outputs.VERSION }}
+
+    - name: push docker
+      run: make push-tmdc-docker GITHUB_TAGS=${{ steps.version.outputs.VERSION }}

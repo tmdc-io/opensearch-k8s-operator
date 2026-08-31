@@ -52,7 +52,9 @@ var (
 )
 
 func RegisterMetrics() {
-	metrics.Registry.MustRegister(TlsCertificateDaysRemaining, ClusterInfo, ClusterHealth, ClusterShards, ReconcileErrors)
+	collectors := []prometheus.Collector{TlsCertificateDaysRemaining, ClusterInfo, ClusterHealth, ClusterShards, ReconcileErrors}
+	collectors = append(collectors, httpCollectors()...)
+	metrics.Registry.MustRegister(collectors...)
 }
 
 func DeleteClusterMetrics(namespace string, clusterName string) {

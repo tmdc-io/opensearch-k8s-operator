@@ -48,6 +48,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/rest"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
@@ -152,9 +153,17 @@ func main() {
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme: scheme,
 		Metrics: metricsserver.Options{
-			BindAddress:    metricsAddr,
-			SecureServing:  true,
-			FilterProvider: filters.WithAuthenticationAndAuthorization,
+			BindAddress:   metricsAddr,
+			SecureServing: true,
+			FilterProvider: func(c *rest.Config, httpClient *http.Client) (metricsserver.Filter, error) {
+				inner, err := filters.WithAuthenticationAndAuthorization(c, httpClient)
+				if err != nil {
+					return nil, err
+				}
+				return func(next http.Handler) http.Handler {
+					return helpers.InstrumentHTTPHandler(helpers.HTTPComponentOperator, inner(next))
+				}, nil
+			},
 		},
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,

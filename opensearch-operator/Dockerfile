@@ -17,12 +17,12 @@ COPY pkg/   pkg/
 COPY webhook/ webhook/
 COPY opensearch-gateway/   opensearch-gateway/
 
-# Build
+# Build with Go's FIPS 140-3 module compiled in (Go 1.24+)
 ARG TARGETOS
 ARG TARGETARCH
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -o manager main.go
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOFIPS140=v1.0.0 go build -a -o manager main.go
 
-FROM --platform=$BUILDPLATFORM registry.access.redhat.com/ubi10-minimal:10.2
+FROM --platform=$BUILDPLATFORM docker.io/tmdcio/ubi:ubi10-minimal-fips-curated.v1
 
 LABEL name="opensearch-operator" \
       vendor="OpenSearch Project" \
@@ -36,6 +36,7 @@ LABEL name="opensearch-operator" \
 COPY LICENSE /licenses/LICENSE
 WORKDIR /
 COPY --from=builder /workspace/manager .
+ENV GODEBUG=fips140=on
 USER 65532:65532
 
 ENTRYPOINT ["/manager"]

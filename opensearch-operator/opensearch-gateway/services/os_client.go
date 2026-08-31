@@ -82,20 +82,23 @@ func NewOsClusterClient(clusterUrl string, username string, password string, opt
 	options.apply(opts...)
 	config := opensearch.Config{
 		Transport: func() http.RoundTripper {
+			var rt http.RoundTripper
 			if options.transport != nil {
-				return options.transport
+				rt = options.transport
+			} else {
+				tlsCfg := options.tlsConfig
+				if tlsCfg == nil {
+					tlsCfg = &tls.Config{InsecureSkipVerify: true}
+				}
+				rt = &http.Transport{
+					TLSClientConfig: tlsCfg,
+					// These options are needed as otherwise connections would be kept and leak memory
+					// Connection reuse is not really possible due to each reconcile run being independent
+					DisableKeepAlives: true,
+					MaxIdleConns:      1,
+				}
 			}
-			tlsCfg := options.tlsConfig
-			if tlsCfg == nil {
-				tlsCfg = &tls.Config{InsecureSkipVerify: true}
-			}
-			return &http.Transport{
-				TLSClientConfig: tlsCfg,
-				// These options are needed as otherwise connections would be kept and leak memory
-				// Connection reuse is not really possible due to each reconcile run being independent
-				DisableKeepAlives: true,
-				MaxIdleConns:      1,
-			}
+			return helpers.InstrumentHTTPRoundTripper(helpers.HTTPComponentCluster, rt)
 		}(),
 		Addresses: []string{clusterUrl},
 		Username:  username,

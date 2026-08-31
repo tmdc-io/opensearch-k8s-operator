@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM --platform=$BUILDPLATFORM golang:1.25.13 AS builder
+FROM --platform=$BUILDPLATFORM golang:1.26.6 AS builder
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
@@ -23,6 +23,10 @@ ARG TARGETARCH
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOFIPS140=v1.0.0 go build -a -o manager main.go
 
 FROM --platform=$BUILDPLATFORM docker.io/tmdcio/ubi:ubi10-minimal-fips-curated.v1
+
+# Pull security-fixed RPMs; also moves glibc off the unpatched Fedora build.
+RUN microdnf update -y rf-expat rf-glibc rf-glibc-common rf-glibc-minimal-langpack \
+    && microdnf clean all
 
 LABEL name="opensearch-operator" \
       vendor="OpenSearch Project" \

@@ -24,6 +24,7 @@ import (
 
 	"strings"
 
+	"github.com/go-logr/logr"
 	"github.com/opensearch-project/opensearch-k8s-operator/opensearch-operator/pkg/helpers"
 
 	"sigs.k8s.io/controller-runtime/pkg/cache"
@@ -160,8 +161,12 @@ func main() {
 				if err != nil {
 					return nil, err
 				}
-				return func(next http.Handler) http.Handler {
-					return helpers.InstrumentHTTPHandler(helpers.HTTPComponentOperator, inner(next))
+				return func(log logr.Logger, handler http.Handler) (http.Handler, error) {
+					wrapped, err := inner(log, handler)
+					if err != nil {
+						return nil, err
+					}
+					return helpers.InstrumentHTTPHandler(helpers.HTTPComponentOperator, wrapped), nil
 				}, nil
 			},
 		},

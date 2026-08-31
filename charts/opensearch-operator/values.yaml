@@ -11,9 +11,7 @@ priorityClassName: ""
 manager:
   securityContext:
     allowPrivilegeEscalation: false
-  extraEnv:
-    - name: GODEBUG
-      value: fips140=on
+  extraEnv: []
   resources:
     limits:
       cpu: 1000m
@@ -51,7 +49,7 @@ manager:
   image:
     repository: docker.io/tmdcio/opensearch-operator
     ## tag default uses appVersion from Chart.yaml, to override specify tag tag: "v1.1"
-    tag: "3.0.0"
+    tag: "3.0.0-d2"
     pullPolicy: "Always"
 
   ## Optional array of imagePullSecrets containing private registry credentials

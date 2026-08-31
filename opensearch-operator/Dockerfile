@@ -36,7 +36,6 @@ LABEL name="opensearch-operator" \
 COPY LICENSE /licenses/LICENSE
 WORKDIR /
 COPY --from=builder /workspace/manager .
-ENV GODEBUG=fips140=on
 USER 65532:65532
 
 ENTRYPOINT ["/manager"]

@@ -3,8 +3,7 @@ name: TMDC Docker Image CI workflow
 on:
   push:
     tags:
-      - 'docker-*'
-      - '!docker-cluster-*'
+      - 'docker-operator-*'
 
 jobs:
   # For RELEASE STEPS
@@ -30,7 +29,7 @@ jobs:
 
     - name: Extract image tag
       id: version
-      run: echo "VERSION=${GITHUB_REF_NAME#docker-}" >> "$GITHUB_OUTPUT"
+      run: echo "VERSION=${GITHUB_REF_NAME#docker-operator-}" >> "$GITHUB_OUTPUT"
 
     - name: build docker
       run: make build-tmdc-docker GITHUB_TAGS=${{ steps.version.outputs.VERSION }}

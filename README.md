@@ -52,6 +52,46 @@ This table only lists versions that have been explicitly tested with the operato
 
 If you want to develop the operator, please see the separate [developer docs](./docs/developing.md).
 
+## TMDC Docker images (GitHub Actions)
+
+Operator and cluster images are built and pushed to Docker Hub when a matching git tag is pushed. The image tag is the git tag with the prefix removed.
+
+| Git tag pattern | Workflow | Image |
+|-----------------|----------|--------|
+| `docker-operator-*` | `.github/workflows/TMDC-DOCKER-image-push.yaml` | `docker.io/tmdcio/opensearch-operator:<version>` |
+| `docker-cluster-*` | `.github/workflows/TMDC-DOCKER-cluster-image-push.yaml` | `docker.io/tmdcio/opensearch-cluster:<version>` |
+
+Helm chart tags are separate. See [HELM-CHART-PUSH.md](./HELM-CHART-PUSH.md) for `operator-*` and `cluster-*`.
+
+### Examples
+
+| Git tag | Result |
+|---------|--------|
+| `docker-operator-3.0.1-d4` | `docker.io/tmdcio/opensearch-operator:3.0.1-d4` |
+| `docker-cluster-3.3.1-d1` | `docker.io/tmdcio/opensearch-cluster:3.3.1-d1` |
+| `operator-3.0.3-d1` | Helm chart only (operator) |
+| `cluster-3.3.1-d1` | Helm chart only (cluster) |
+
+```bash
+# Operator image
+git tag docker-operator-3.0.1-d4
+git push origin docker-operator-3.0.1-d4
+
+# Cluster image
+git tag docker-cluster-3.3.1-d1
+git push origin docker-cluster-3.3.1-d1
+```
+
+Local builds:
+
+```bash
+make build-tmdc-docker GITHUB_TAGS=3.0.1-d4
+make push-tmdc-docker GITHUB_TAGS=3.0.1-d4
+
+make build-tmdc-cluster-docker GITHUB_TAGS=3.3.1-d1
+make push-tmdc-cluster-docker GITHUB_TAGS=3.3.1-d1
+```
+
 ## Contributions
 
 We welcome contributions! See how you can get involved by reading [CONTRIBUTING.md](./CONTRIBUTING.md).

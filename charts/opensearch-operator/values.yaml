@@ -11,6 +11,11 @@ priorityClassName: ""
 manager:
   securityContext:
     allowPrivilegeEscalation: false
+  # FIPS is off by default (GODEBUG=fips140=off is set in the Deployment).
+  # To enable, add this extraEnv entry (it overrides the default because it is listed last):
+  #   extraEnv:
+  #     - name: GODEBUG
+  #       value: fips140=on
   extraEnv: []
   resources:
     limits:

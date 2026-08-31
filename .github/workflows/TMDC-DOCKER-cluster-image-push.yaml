@@ -1,16 +1,13 @@
-name: TMDC Docker Image CI workflow
+name: TMDC OpenSearch Cluster Docker Image CI workflow
 
 on:
   push:
     tags:
-      - 'docker-*'
-      - '!docker-cluster-*'
+      - 'docker-cluster-*'
 
 jobs:
-  # For RELEASE STEPS
-
   dev-release:
-    name: Release Build and Push Docker image to Docker Hub
+    name: Release Build and Push Cluster Docker image to Docker Hub
     runs-on: ubuntu-latest
 
     steps:
@@ -30,10 +27,10 @@ jobs:
 
     - name: Extract image tag
       id: version
-      run: echo "VERSION=${GITHUB_REF_NAME#docker-}" >> "$GITHUB_OUTPUT"
+      run: echo "VERSION=${GITHUB_REF_NAME#docker-cluster-}" >> "$GITHUB_OUTPUT"
 
     - name: build docker
-      run: make build-tmdc-docker GITHUB_TAGS=${{ steps.version.outputs.VERSION }}
+      run: make build-tmdc-cluster-docker GITHUB_TAGS=${{ steps.version.outputs.VERSION }}
 
     - name: push docker
-      run: make push-tmdc-docker GITHUB_TAGS=${{ steps.version.outputs.VERSION }}
+      run: make push-tmdc-cluster-docker GITHUB_TAGS=${{ steps.version.outputs.VERSION }}

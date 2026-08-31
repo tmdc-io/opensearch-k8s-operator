@@ -77,3 +77,20 @@ build-tmdc-docker: ## Build TMDC Docker image for linux/amd64
 .PHONY: push-tmdc-docker
 push-tmdc-docker: ## Push TMDC Docker image to Docker Hub
 	docker push $(IMAGE_REPO):$(GITHUB_TAGS)
+
+CLUSTER_IMAGE_REPO ?= docker.io/tmdcio/opensearch-cluster
+
+.PHONY: build-tmdc-cluster-docker
+build-tmdc-cluster-docker: ## Build TMDC OpenSearch cluster Docker image for linux/amd64
+	@echo "build cluster docker container"
+	@cp -f LICENSE opensearch-cluster/LICENSE
+	docker buildx build \
+		--output type=docker \
+		--platform $(PLATFORM) \
+		-f opensearch-cluster/Dockerfile \
+		--tag $(CLUSTER_IMAGE_REPO):$(GITHUB_TAGS) \
+		opensearch-cluster
+
+.PHONY: push-tmdc-cluster-docker
+push-tmdc-cluster-docker: ## Push TMDC OpenSearch cluster Docker image to Docker Hub
+	docker push $(CLUSTER_IMAGE_REPO):$(GITHUB_TAGS)
